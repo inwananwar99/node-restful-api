@@ -10,14 +10,51 @@ export const removeTestUser = async()=>{
 
 }
 
-// export const createTestUser = async()=>{
-    // await prismaClient.user.create({
-    //     data:{
-    //         username:'test',
-    //         password:await bcrypt.hash("rahasia",10),
-    //         name:'test',
-    //         token:'test'
-    //     }
-    // })
-// }
+export const createTestUser = async()=>{
+    await prismaClient.user.create({
+        data:{
+            username:"test",
+            password:await bcrypt.hash("rahasia",10),
+            name:"test",
+            token:"test"
+        }
+    })
+}
 
+export const getTestUser = async()=>{
+    return prismaClient.user.findUnique({
+        where:{
+            username:"test"
+        }
+    })
+}
+
+
+export const removeAllTestContact = async()=>{
+    await prismaClient.contact.deleteMany({
+        where:{
+            username:"test"
+        }
+    })
+}
+
+
+export const createTestContact = async()=>{
+    await prismaClient.contact.create({
+        data:{
+            username:'test',
+            first_name:"inwan",
+            last_name:"solihudin",
+            email:"test@iconpln.co.id",
+            phone:"087778817890"
+        }
+    })
+}
+
+export const getTestContact = async()=>{
+    return prismaClient.contact.findFirst({
+        where:{
+            username:'test'
+        }
+    })
+}
