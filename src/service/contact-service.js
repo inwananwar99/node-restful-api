@@ -51,7 +51,7 @@ const update = async(user,request)=>{
     })
 
     if(totalContact !== 1){
-        throw new ResponseError(401,"Contact not found")
+        throw new ResponseError(404,"Contact not found")
     }
 
     return prismaClient.contact.update({
@@ -75,6 +75,26 @@ const update = async(user,request)=>{
 }
 
 
+const remove = async(user, contactId)=>{
+    contactId = validate(getContactValidation,contactId)
+    const totalContact = await prismaClient.contact.count({
+        where:{
+            username:user.username,
+            id:contactId
+        }
+    })
+
+    if(totalContact !== 1){
+        throw new ResponseError(404,"Contact is not found")
+    }
+
+    return prismaClient.contact.delete({
+        where:{
+            id:contactId
+        }
+    })
+}
+
 export default{
-    create,get,update
+    create,get,update,remove
 }

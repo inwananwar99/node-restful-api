@@ -131,5 +131,58 @@ describe('PUT /api/contacts/:contactId', () => {
 
         expect(result.status).toBe(400)
     })
+
+    it('if contact not found',async()=>{
+        const contact = await getTestContact()
+        console.log(contact)
+        const result = await supertest(web)
+        .put('/api/contacts/'+(contact.id+1))
+        .set('Authorization','test')
+        .send({
+            first_name:"iwan",
+            last_name:"anwar",
+            email:"iwan@iconpln.co.id",
+            phone:"08578890876"
+        })
+
+        expect(result.status).toBe(404)
+    })
 })
+
+describe('DELETE /api/contacts/:contactId', () => {
+    beforeEach(async()=>{
+        await createTestUser()
+        await createTestContact()
+    })
+
+    afterEach(async()=>{
+        await removeAllTestContact()
+        await removeTestUser()
+    })
+    it('should can delete contact',async()=>{
+        let contact = await getTestContact()
+        const result = await supertest(web)
+        .delete('/api/contacts/'+contact.id)
+        .set('Authorization','test')
+
+        expect(result.status).toBe(200)
+        expect(result.body.data).toBe("OK")
+
+        contact = await getTestContact()
+        expect(contact).toBeNull()
+
+    })
+
+    it('should reject if contact is not found',async()=>{
+        let contact = await getTestContact()
+        const result = await supertest(web)
+        .delete('/api/contacts/'+(contact.id+1))
+        .set('Authorization','test')
+
+        expect(result.status).toBe(404)
+
+    })
+  
+})
+
 
