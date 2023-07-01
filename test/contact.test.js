@@ -1,7 +1,7 @@
 import supertest from "supertest"
 import { web } from "../src/application/web.js"
 import logger from "winston"
-import { createTestContact, createTestUser,getTestContact,removeAllTestContact, removeTestUser } from "./test-util.js"
+import { createManyTestContacts, createTestContact, createTestUser,getTestContact,removeAllTestContact, removeTestUser } from "./test-util.js"
 
 describe('POST /api/contacts', () => {
     beforeEach(async()=>{
@@ -184,5 +184,93 @@ describe('DELETE /api/contacts/:contactId', () => {
     })
   
 })
+
+
+describe('GET /api/contacts', () => {
+    beforeEach(async()=>{
+        await createTestUser()
+        await createManyTestContacts()
+    })
+
+    afterEach(async()=>{
+        await removeAllTestContact()
+        await removeTestUser()
+    })  
+
+    it('should can search whithout parameter',async()=>{
+        const result = await supertest(web)
+        .get('/api/contacts')
+        .set('Authorization','test')
+
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(10)
+        expect(result.body.paging.page).toBe(1)
+        expect(result.body.paging.total_page).toBe(2)
+        expect(result.body.paging.total_item).toBe(15)
+    })
+
+    it('should can search into page 2 from 2',async()=>{
+        const result = await supertest(web)
+        .get('/api/contacts')
+        .query({
+            page:2
+        })
+        .set('Authorization','test')
+
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(5)
+        expect(result.body.paging.page).toBe(2)
+        expect(result.body.paging.total_page).toBe(2)
+        expect(result.body.paging.total_item).toBe(15)
+    })
+
+    it('should can search using name',async()=>{
+        const result = await supertest(web)
+        .get('/api/contacts')
+        .query({
+            name:'inwan 1'
+        })
+        .set('Authorization','test')
+
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(7)
+        expect(result.body.paging.page).toBe(1)
+        expect(result.body.paging.total_page).toBe(1)
+        expect(result.body.paging.total_item).toBe(7)
+    })
+
+    it('should can search using email',async()=>{
+        const result = await supertest(web)
+        .get('/api/contacts')
+        .query({
+            email:'test1'
+        })
+        .set('Authorization','test')
+
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(7)
+        expect(result.body.paging.page).toBe(1)
+        expect(result.body.paging.total_page).toBe(1)
+        expect(result.body.paging.total_item).toBe(7)
+    })
+
+    it('should can search using phone and page',async()=>{
+        const result = await supertest(web)
+        .get('/api/contacts')
+        .query({
+            phone:'087778817890',
+            page:2
+        })
+        .set('Authorization','test')
+
+        expect(result.status).toBe(200)
+        expect(result.body.data.length).toBe(5)
+        expect(result.body.paging.page).toBe(2)
+        expect(result.body.paging.total_page).toBe(2)
+        expect(result.body.paging.total_item).toBe(15)
+    })
+  
+})
+
 
 
