@@ -5,20 +5,20 @@ import { createAddressValidation, getAddressValidation, updateAddressValidation 
 import {getContactValidation } from "../validation/contact-validation.js"
 import { validate } from "../validation/validation.js"
 
-const contactIsExist = async(user,contactId)=>{
-    contactId = validate(getContactValidation,contactId)
-    const totalContact = await prismaClient.contact.count({
-        where:{
-            username:user.username,
-            id:contactId
-        }
-    })
-    if(totalContact!==1){
-        throw new ResponseError(404,"Contact not found")
-    }
+// const contactIsExist = async(user,contactId)=>{
+//     contactId = validate(getContactValidation,contactId)
+//     const totalContact = await prismaClient.contact.count({
+//         where:{
+//             username:user.username,
+//             id:contactId
+//         }
+//     })
+//     if(totalContact!==1){
+//         throw new ResponseError(404,"Contact not found")
+//     }
 
-    return contactId
-}
+//     return contactId
+// }
 
 const create = async(user,contactId,request)=>{
     contactId = validate(getContactValidation,contactId)
@@ -74,7 +74,16 @@ const get = async(user, contactId,addressId)=>{
 }
 
 const update = async(user,contactId,request)=>{
-    const contactId = await contactIsExist(user,contactId)
+    contactId = validate(getContactValidation,contactId)
+    const totalContact = await prismaClient.contact.count({
+        where:{
+            username:user.username,
+            id:contactId
+        }
+    })
+    if(totalContact!==1){
+        throw new ResponseError(404,"Contact not found")
+    }
     const address = validate(updateAddressValidation,request)
     const totalAddress = await prismaClient.address.count({
         where:{
@@ -82,10 +91,10 @@ const update = async(user,contactId,request)=>{
             id:address.id
         }
     })
-
-    if(totalAddress!== 1){
-        throw new ResponseError(404, "Address not found")
+    if(totalAddress!==1){
+        throw new ResponseError(404,"Address not found")
     }
+
 
     return prismaClient.address.update({
         where:{
@@ -109,7 +118,36 @@ const update = async(user,contactId,request)=>{
     })
 }
 
+const remove = async(user, contactId, addressId)=>{
+    contactId = validate(getContactValidation,contactId)
+    const totalContact = await prismaClient.contact.count({
+        where:{
+            username:user.username,
+            id:contactId
+        }
+    })
+    if(totalContact!==1){
+        throw new ResponseError(404,"Contact not found")
+    }
+    addressId = validate(getAddressValidation,addressId)
+    const totalAddress = await prismaClient.address.count({
+        where:{
+            contact_id:contactId,
+            id:addressId
+        }
+    })
+    if(totalAddress!==1){
+        throw new ResponseError(404,"Address not found")
+    }
+
+    return prismaClient.address.delete({
+        where:{
+            id:addressId
+        }
+    })
+}
+
 
 export default{
-    create,get,update
+    create,get,update,remove
 }

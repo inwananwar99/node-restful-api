@@ -12,10 +12,6 @@ const create = async(req,res,next)=>{
         })
     } catch (e) {
         next(e)
-        console.log(e)
-        console.log(request)
-        console.log(user)
-        console.log(contactId)
     }
 }
 
@@ -39,17 +35,35 @@ const update = async(req,res,next)=>{
         const contactId = req.params.contactId
         const addressId = req.params.addressId
         const request = req.body
-        request.addressId = addressId
+        request.id = addressId
+        console.log(contactId)
         const result = await addressService.update(user,contactId,request)
         res.status(200).json({
             data:result
         })
     } catch (e) {
         next(e)
+        console.log(e)
+    }
+}
+
+const remove = async(req,res,next)=>{
+    try {
+        const user = req.user
+        const contactId = req.params.contactId
+        const addressId = req.params.addressId
+        await addressService.remove(user,contactId,addressId)
+        res.status(200).json({
+            data:"OK"
+        })
+    } catch (e) {
+        next(e)
+        console.log(e)
+        console.log()
     }
 }
 
 
 export default {
-    create,get,update
+    create,get,update,remove
 }
