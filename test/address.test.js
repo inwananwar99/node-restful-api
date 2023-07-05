@@ -227,6 +227,66 @@ describe('DELETE /api/contacts/:contactId/addresses/:addressId', () => {
     address = await getTestAddress()
     expect(address).toBeNull()
   })
+
+  it('should reject if address not found',async()=>{
+    const contact = await getTestContact()
+    let address = await getTestAddress()
+
+    const result = await supertest(web)
+    .delete('/api/contacts/'+contact.id+'/addresses/'+(address.id+1))
+    .set('Authorization','test')
+
+    
+    expect(result.status).toBe(404)
+  })
+
+  it('should reject if contact not found',async()=>{
+    const contact = await getTestContact()
+    let address = await getTestAddress()
+
+    const result = await supertest(web)
+    .delete('/api/contacts/'+(contact.id+1)+'/addresses/'+address.id)
+    .set('Authorization','test')
+
+    
+    expect(result.status).toBe(404)
+  })
 })
+
+describe('GET /api/contacts/:contactId/addresses', () => {
+  beforeEach(async()=>{
+    await createTestUser()
+    await createTestContact()
+    await createTestAddress()
+  })
+
+  afterEach(async()=>{
+      await removeAllTestAddresses()
+      await removeAllTestContact()
+      await removeTestUser()
+  })
+  it('should can get list address',async()=>{
+    const contact = await getTestContact()
+    const result = await supertest(web)
+    .get('/api/contacts/'+contact.id+'/addresses')
+    .set('Authorization','test')
+
+    expect(result.status).toBe(200)
+    expect(result.body.data.length).toBe(1)
+
+  })
+
+  it('should reject if contact not found',async()=>{
+    const contact = await getTestContact()
+    const result = await supertest(web)
+    .get('/api/contacts/'+(contact.id+1)+'/addresses')
+    .set('Authorization','test')
+
+    expect(result.status).toBe(404)
+
+  })
+  
+})
+
 
 
